@@ -12,35 +12,42 @@ public static class RandomWalk {
         new Vector3Int(1,0,0), //RIGHT
         new Vector3Int(-1,0,0) //LEFT
     };
-    public static HashSet<Vector3Int> randomWalk(Vector3Int startPos, int walkLength, HashSet<Vector3Int> walkedSet) {
+    public static HashSet<Vector3Int> randomWalk(Vector3Int startPos, int walkLength, int maxLen, HashSet<Vector3Int> walkedSet) {
         HashSet<Vector3Int> floorPos = new HashSet<Vector3Int>();
+        int max = Mathf.Abs(startPos.x) + maxLen;
 
+        int attempts1 = 0;
+        while (walkedSet.Contains(startPos) && attempts1 < 100) {
+            Debug.Log("Started in a taken space");
+            startPos += cardinalDirectionsList[Random.Range(0, 4)];
+            attempts1++;
+        }
         floorPos.Add(startPos);
+        Debug.Log("start pos: " + startPos);
 
         Vector3Int prevPos = startPos;
-        //for loop makes sure to generate a new coordinate for however long walkLength is
-        for (int i = 0; i < walkLength; i++) {
-            // generate a random direction for the next step
-            int randomDirectionElementNum = Random.Range(0, 4);
-            var newPos = prevPos + cardinalDirectionsList[randomDirectionElementNum];
 
-            //if the walker has already walked there, find a new place to walk to.
+        for (int i = 0; i < walkLength; i++) {
             int attempts = 0;
-            while(floorPos.Contains(newPos) && attempts < 20) {
-                randomDirectionElementNum = Random.Range(0, 4);
-                newPos = prevPos + cardinalDirectionsList[randomDirectionElementNum];
+            Vector3Int newPos;
+            do {
+                Vector3Int direction = cardinalDirectionsList[Random.Range(0, cardinalDirectionsList.Count)];
+                newPos = prevPos + direction;
                 attempts++;
-                if(attempts == 20) {
-                    Debug.Log("too many attempts, restarting walker" + attempts);
-                }
-            }
-            if(!(attempts == 20)) {
+            } while ((walkedSet.Contains(newPos) || Mathf.Abs(newPos.x - startPos.x) > maxLen || Mathf.Abs(newPos.z - startPos.z) > maxLen) && attempts < 100);
+
+            if (attempts < 100) {
                 floorPos.Add(newPos);
-                Debug.Log("Added newPos at: " + newPos);
-            } else {
-                prevPos = floorPos.ElementAt(Random.Range(0,floorPos.Count));
+                prevPos = newPos;
+                //Debug.Log("Added newPos at: " + newPos);
+            }
+            else {
+                // Dead-end, choose a random previous floor tile to resume from
+                prevPos = floorPos.ElementAt(Random.Range(0, floorPos.Count));
+                Debug.Log("Too many attempts. Jumping to random floorPos.");
             }
         }
+
         return floorPos;
     }
 }

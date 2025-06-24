@@ -6,6 +6,7 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField] private Vector3Int startPos = Vector3Int.zero;
     [SerializeField] private int walkLength = 10;
     [SerializeField] private int numRooms = 10;
+    [SerializeField] private int roomSize = 10;
     //[SerializeField] private int roomBoarder = 10;
 
     //Think of DungeonSize as like a Radius: 25 units up, down, left, right from center
@@ -21,8 +22,8 @@ public class DungeonGenerator : MonoBehaviour
     }
 
     private void generate() {
-        roomGen(numRooms);
         starterGen(starterTile);
+        roomGen(numRooms);
     }
     private void floorGen(GameObject tile, HashSet<Vector3Int> floorPos) {
         foreach (var floor in floorPos) {
@@ -34,7 +35,8 @@ public class DungeonGenerator : MonoBehaviour
         HashSet<Vector3Int> floorPos = new HashSet<Vector3Int>();
         for (int i = 0; i < numRooms; i++) {
             Vector3Int roomCenter = new Vector3Int(Random.Range(-1 * DungeonSize, DungeonSize), 0, Random.Range(-1 * DungeonSize, DungeonSize));
-            floorPos.UnionWith(RandomWalk.randomWalk(roomCenter, walkLength, visited));
+            Instantiate(starterTile, roomCenter + Vector3Int.up, Quaternion.identity);
+            floorPos.UnionWith(RandomWalk.randomWalk(roomCenter, walkLength, roomSize, visited));
         }
         visited.UnionWith(floorPos);
         floorGen(floorTile, floorPos);
