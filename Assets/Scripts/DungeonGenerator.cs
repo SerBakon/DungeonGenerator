@@ -14,20 +14,43 @@ public class DungeonGenerator : MonoBehaviour
 
     [SerializeField] private GameObject floorTile;
     [SerializeField] private GameObject starterTile;
+    [SerializeField] private GameObject wallTile;
 
     private HashSet<Vector3Int> visited = new HashSet<Vector3Int>();
+    private HashSet<GameObject> tilesTotal = new HashSet<GameObject>();
+    private HashSet<Vector3Int> wallsTotal = new HashSet<Vector3Int>();
+
+    public static List<Vector3Int> cardinalDirectionsList = new List<Vector3Int>()
+    {
+        new Vector3Int(0,0,1), //UP
+        new Vector3Int(0,0,-1), //DOWN
+        new Vector3Int(1,0,0), //RIGHT
+        new Vector3Int(-1,0,0) //LEFT
+    };
+
     void Start()
     {
         generate();
     }
 
-    private void generate() {
+    public void generate() {
+        clear();
         starterGen(starterTile);
         roomGen(numRooms);
     }
+
+    private void clear() {
+        foreach (var tile in tilesTotal) {
+            Destroy(tile); // Destroy old tiles from the scene
+        }
+        tilesTotal.Clear(); // Clear the list
+        visited.Clear();
+    }
+
     private void floorGen(GameObject tile, HashSet<Vector3Int> floorPos) {
         foreach (var floor in floorPos) {
-            Instantiate(tile, new Vector3(floor.x,floor.y,floor.z), Quaternion.identity);
+            GameObject spawnedTile = Instantiate(tile, new Vector3(floor.x, floor.y, floor.z), Quaternion.identity);
+            tilesTotal.Add(spawnedTile); // Track the instantiated tiles
         }
     }
 
@@ -35,11 +58,17 @@ public class DungeonGenerator : MonoBehaviour
         HashSet<Vector3Int> floorPos = new HashSet<Vector3Int>();
         for (int i = 0; i < numRooms; i++) {
             Vector3Int roomCenter = new Vector3Int(Random.Range(-1 * DungeonSize, DungeonSize), 0, Random.Range(-1 * DungeonSize, DungeonSize));
-            Instantiate(starterTile, roomCenter + Vector3Int.up, Quaternion.identity);
-            floorPos.UnionWith(RandomWalk.randomWalk(roomCenter, walkLength, roomSize, visited));
+            //Instantiate(starterTile, roomCenter + Vector3Int.up, Quaternion.identity);
+            floorPos = RandomWalk.randomWalk(roomCenter, walkLength, roomSize, visited);
+            if(floorPos == null) {
+                Debug.Log("couldn't find a good start pos");
+                continue;
+            }
+            visited.UnionWith(floorPos);
+            floorGen(floorTile, floorPos);
+            //Debug.Log("created room #: " + i);
+            wallGen(wallTile, floorPos);
         }
-        visited.UnionWith(floorPos);
-        floorGen(floorTile, floorPos);
     }
 
     private void starterGen(GameObject tile) {
@@ -51,5 +80,31 @@ public class DungeonGenerator : MonoBehaviour
         }
         visited.UnionWith(floorPos);
         floorGen(tile, floorPos);
+    }
+
+    private void wallGen(GameObject tile, HashSet<Vector3Int> floorPos) {
+        HashSet<Vector3Int> wallPos = new HashSet<Vector3Int>();
+        foreach (var floor in floorPos) {
+            var tileUp = floor + cardinalDirectionsList[0];
+            var tileDown = floor + cardinalDirectionsList[1];
+            var tileRight = floor + cardinalDirectionsList[2];
+            var tileLeft = floor + cardinalDirectionsList[3];
+
+            if(!floorPos.Contains(tileUp)) {
+                wallPos.Add(tileUp);
+            }
+            if (!floorPos.Contains(tileDown)) {
+                wallPos.Add(tileDown);
+            }
+            if (!floorPos.Contains(tileRight)) {
+                wallPos.Add(tileRight);
+            }
+            if (!floorPos.Contains(tileLeft)) {
+                wallPos.Add(tileLeft);
+            }
+        }
+        visited.UnionWith(wallPos);
+        wallsTotal.UnionWith(wallPos);
+        floorGen(tile, wallPos);
     }
 }
