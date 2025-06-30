@@ -39,7 +39,7 @@ public class DungeonGenerator : MonoBehaviour
 
     public void generate() {
         clear();
-        wallsTotal.Add(new Vector3Int(4,0,0));
+        //wallsTotal.Add(new Vector3Int(4,0,0));
         starterGen(starterTile);
         roomGen(numRooms, Vector3Int.zero);
         //generate wall
@@ -60,6 +60,7 @@ public class DungeonGenerator : MonoBehaviour
         tilesTotal.Clear(); // Clear the list
         visited.Clear();
         wallsTotal.Clear();
+        doorsTotal.Clear();
     }
 
     private void tileGen(GameObject tile, HashSet<Vector3Int> floorPos) {
@@ -103,6 +104,10 @@ public class DungeonGenerator : MonoBehaviour
                 floorPos.Add(new Vector3Int(i, 0, j));
             }
         }
+        doorGen(new Vector3Int(3, 0, 0));
+        doorGen(new Vector3Int(0, 0, 3));
+        doorGen(new Vector3Int(0, 0, -3));
+
         roomGen(1, new Vector3Int(4, 0, 0));
         roomGen(1, new Vector3Int(0, 0, 4));
         roomGen(1, new Vector3Int(0, 0, -4));

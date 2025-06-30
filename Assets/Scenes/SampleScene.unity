@@ -1266,8 +1266,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startPos: {x: 0, y: 0, z: 0}
   walkLength: 90
-  numRooms: 10
-  roomSize: 10
+  numRooms: 30
+  roomSize: 2
   floorTile: {fileID: 1691169393}
   starterTile: {fileID: 543582351}
   wallTile: {fileID: 1997168953}
