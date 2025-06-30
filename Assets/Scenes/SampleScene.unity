@@ -1159,7 +1159,6 @@ MonoBehaviour:
   walkLength: 90
   numRooms: 10
   roomSize: 10
-  DungeonSize: 10
   floorTile: {fileID: 1691169393}
   starterTile: {fileID: 543582351}
   wallTile: {fileID: 1997168953}

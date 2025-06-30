@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 
 public static class RandomWalk {
+    //public static Vector3Int startReal;
 
     public static List<Vector3Int> cardinalDirectionsList = new List<Vector3Int>()
     {
@@ -16,9 +17,10 @@ public static class RandomWalk {
         HashSet<Vector3Int> floorPos = new HashSet<Vector3Int>();
 
         int attempts1 = 0;
+        //if start pos is in a taken space, move up, down, right, or left until you reach a free space.
         while ((walkedSet.Contains(startPos) || Mathf.Abs(startPos.x) <= 3 && Mathf.Abs(startPos.z) <= 3) && attempts1 < 100) {
             //Debug.Log("Started in a taken space");
-            startPos += cardinalDirectionsList[Random.Range(0, 4)];
+            startPos += cardinalDirectionsList[Random.Range(0, 3)];
             attempts1++;
         }
 
@@ -26,7 +28,9 @@ public static class RandomWalk {
             return floorPos;
         }
         floorPos.Add(startPos);
-        //Debug.Log("start pos: " + startPos);
+        //startReal = startPos;
+
+        Debug.Log("start pos: " + startPos);
 
         Vector3Int prevPos = startPos;
 
