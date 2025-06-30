@@ -20,7 +20,9 @@ public class DungeonGenerator : MonoBehaviour
 
     private HashSet<Vector3Int> visited = new HashSet<Vector3Int>();
     private HashSet<GameObject> tilesTotal = new HashSet<GameObject>();
+    //private HashSet<GameObject> wallObjectTotal = new HashSet<GameObject>();
     private HashSet<Vector3Int> wallsTotal = new HashSet<Vector3Int>();
+    private HashSet<Vector3Int> doorsTotal = new HashSet<Vector3Int>();
 
     public static List<Vector3Int> cardinalDirectionsList = new List<Vector3Int>()
     {
@@ -40,6 +42,15 @@ public class DungeonGenerator : MonoBehaviour
         wallsTotal.Add(new Vector3Int(4,0,0));
         starterGen(starterTile);
         roomGen(numRooms, Vector3Int.zero);
+        //generate wall
+        foreach (var floor in wallsTotal) {
+            if (!(doorsTotal.Contains(floor))) {
+                GameObject spawnedTile = Instantiate(wallTile, new Vector3(floor.x, floor.y, floor.z), Quaternion.identity);
+                tilesTotal.Add(spawnedTile);
+                //wallObjectTotal.Add(spawnedTile); // Track the instantiated tiles
+            }
+            
+        }
     }
 
     private void clear() {
@@ -73,15 +84,18 @@ public class DungeonGenerator : MonoBehaviour
             }
             if (numRooms > 1) {
                 var doorPos = RandomWalk.startReal + (RandomWalk.prevMove * -1);
-                GameObject door = Instantiate(doorTile, doorPos + Vector3Int.up, Quaternion.identity);
-                tilesTotal.Add(door);
+                doorGen(doorPos);
             }
             visited.UnionWith(floorPos);
             tileGen(floorTile, floorPos);
             wallGen(wallTile, floorPos);
         }
     }
-
+    private void doorGen(Vector3Int doorPos) {
+        doorsTotal.Add(doorPos);
+        GameObject door = Instantiate(doorTile, doorPos, Quaternion.identity);
+        tilesTotal.Add(door);
+    }
     private void starterGen(GameObject tile) {
         HashSet<Vector3Int> floorPos = new HashSet<Vector3Int>();
         for (int i = -2; i <= 2; i++) {
@@ -119,6 +133,6 @@ public class DungeonGenerator : MonoBehaviour
         }
         visited.UnionWith(wallPos);
         wallsTotal.UnionWith(wallPos);
-        tileGen(tile, wallPos);
     }
+
 }
